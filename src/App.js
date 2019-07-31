@@ -37,6 +37,8 @@ class UIState {
     @observable openedLogStores = [];
     @observable activeLogStore = {};
 
+
+
     @action
     openLogStore(client, project, logStore) {
         runInAction(() => {

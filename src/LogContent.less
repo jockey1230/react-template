@@ -10,10 +10,22 @@
     margin: 10px 0;
     position: relative;
 
-    .query_exp_input {
+    .query_input {
       position: absolute;
-      right: 370px;
       left: 0;
+      right: 360px;
+
+      .ant-input-search {
+        position: absolute;
+        left: 85px;
+        width: auto;
+        right: 45px;
+
+        input {
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+        }
+      }
     }
 
     .query_time_btn {
@@ -38,7 +50,14 @@
     td {
       font-size: 12px;
       font-weight: 400;
+      color: black;
     }
+  }
+}
+
+.table_row_info {
+  .ant-table-small {
+    border: none !important;
   }
 }
 

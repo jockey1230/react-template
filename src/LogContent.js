@@ -2,14 +2,28 @@ import React from "react";
 import {observer} from 'mobx-react';
 import {observable, action, runInAction} from 'mobx';
 import Log from "./service/log"
-import {Table, Input, Tooltip, Button, Dropdown, Menu, Icon, Drawer, DatePicker} from 'antd';
+import {
+    Table,
+    Input,
+    Tooltip,
+    AutoComplete,
+    Button,
+    Dropdown,
+    Menu,
+    Icon,
+    Drawer,
+    DatePicker,
+    Select
+} from 'antd';
 import moment from "moment"
 
 import "./LogContent.less"
 
 const {Search} = Input;
+const InputGroup = Input.Group;
 const {Column} = Table;
 const {RangePicker} = DatePicker;
+const {Option} = Select;
 
 @observer
 class LogContent extends React.Component {
@@ -50,6 +64,27 @@ class LogContent extends React.Component {
     selectRangeDates = []
 
     @observable drawerVisible = false;
+
+    @observable rowInfoDrawerVisible = false;
+    @observable selectedRow = [];
+
+    @action
+    openRowInfoDrawer(visible, row) {
+        this.rowInfoDrawerVisible = visible;
+        let dataSource = []
+        if (row) {
+            for (let key in row) {
+                if (key === "key") {
+                    continue
+                }
+                dataSource.push({
+                    key: key,
+                    value: row[key]
+                })
+            }
+        }
+        this.selectedRow = dataSource
+    }
 
     @action
     openDrawer(visible) {
@@ -104,15 +139,43 @@ class LogContent extends React.Component {
         return (
             <div className={"log_content"}>
                 <div className={"search_box"}>
-                    <div className={"query_exp_input"}>
-                        <Search allowClear placeholder="查询表达式" onSearch={this.handleSearch} enterButton suffix={
-                            <Tooltip title={
-                                <a className={"search_tooltip_a"}
-                                   href={'https://www.alibabacloud.com/help/zh/doc-detail/29060.htm'}
-                                   target="_blank" rel="noopener noreferrer">点击查看查询语法</a>}>
-                                <Icon type="question-circle" style={{color: 'rgba(0,0,0,.45)'}}/>
-                            </Tooltip>
-                        }/>
+                    <div className={"query_input"}>
+                        <InputGroup compact>
+                            <AutoComplete
+                                className="certain-category-search"
+                                dropdownClassName="certain-category-search-dropdown"
+                                dropdownMatchSelectWidth={false}
+                                dropdownStyle={{
+                                    width: 200, overflow: 'hidden',
+                                    textVerflow: 'ellipsis',
+                                    whiteSpace: 'nowrap'
+                                }}
+                                dataSource={this.log.history.map((opt, idx) => (
+                                    <Option key={idx} value={opt}>
+                                        <span className="certain-search-item-count">{opt}</span>
+                                        <div style={{float: "right", fontSize: 12, color: '#1890ff'}}
+                                             onClick={e => {
+                                                 console.info(e)
+                                                 e.stopPropagation();
+                                                 e.nativeEvent.stopImmediatePropagation();
+                                                 this.log.removeHistory(opt)
+                                             }}>删除
+                                        </div>
+                                    </Option>
+                                ))}
+                                onChange={value => this.log.topic = value}
+                                placeholder="服务名"
+                                optionLabelProp="value">
+                            </AutoComplete>
+                            <Search allowClear placeholder="查询表达式" onSearch={this.handleSearch} enterButton suffix={
+                                <Tooltip title={
+                                    <a className={"search_tooltip_a"}
+                                       href={'https://www.alibabacloud.com/help/zh/doc-detail/29060.htm'}
+                                       target="_blank" rel="noopener noreferrer">点击查看查询语法</a>}>
+                                    <Icon type="question-circle" style={{color: 'rgba(0,0,0,.45)'}}/>
+                                </Tooltip>
+                            }/>
+                        </InputGroup>
                     </div>
                     <Dropdown className={"query_time_btn"} overlay={
                         <Menu onClick={this.handleTimeMenuClick}>
@@ -134,6 +197,14 @@ class LogContent extends React.Component {
                     <Table
                         dataSource={this.log.list} loading={this.log.loading}
                         pagination={false}
+                        onRow={record => {
+                            return {
+                                onClick: event => {
+                                    this.openRowInfoDrawer(true, record)
+                                }
+                            };
+                        }}
+
                         onChange={this.handleOnChange}>
                         <Column width={180} title="时间" dataIndex="__time__"
                                 defaultSortOrder={'descend'}
@@ -142,9 +213,38 @@ class LogContent extends React.Component {
                                 render={(text, record) => (
                                     <span>{moment(parseInt(record.__time__) * 1000).format("YYYY-MM-DD hh:mm:ss")}</span>
                                 )}/>
-                        <Column title="内容" dataIndex="content"/>
+                        <Column title="级别" dataIndex="level"/>}
+                        <Column title="内容" dataIndex="message"
+                                render={(text, record) => <div
+                                    style={{
+                                        wordWrap: 'break-word',
+                                        wordBreak: 'break-all',
+                                        whiteSpace: 'pre-wrap'
+                                    }}>{text}</div>}
+                        />
                     </Table>
                 </div>
+                <Drawer
+                    title="详情"
+                    placement="right"
+                    width={'70%'}
+                    closable={true}
+                    onClose={() => this.openRowInfoDrawer(false)}
+                    visible={this.rowInfoDrawerVisible}>
+                    <Table dataSource={this.selectedRow}
+                           size={"small"}
+                           className={"table_row_info"}
+                           pagination={false}
+                           columns={[
+                               {
+                                   title: 'Key',
+                                   dataIndex: 'key',
+                               }, {
+                                   title: 'Value',
+                                   dataIndex: 'value'
+                               }
+                           ]}/>
+                </Drawer>
                 <Drawer
                     title="自定义时间"
                     placement="right"

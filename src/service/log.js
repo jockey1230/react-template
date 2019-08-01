@@ -71,7 +71,7 @@ class Log {
             }
         }).then(resp => {
             runInAction(() => {
-                resp.data.logs.map((log, idx) => log.key = this.offset + "-" + idx);
+                resp.data.logs.map((log, idx) => log.key = this.offset + idx + 1);
                 if (append) {
                     this.list = this.list.concat(resp.data.logs)
                 } else {

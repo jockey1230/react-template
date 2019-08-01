@@ -51,6 +51,17 @@
       font-size: 12px;
       font-weight: 400;
       color: black;
+      vertical-align: text-top;
+
+      .message{
+        overflow-wrap: break-word;
+        word-break: break-all;
+        white-space: pre-wrap;
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+      }
     }
   }
 }
@@ -58,6 +69,13 @@
 .table_row_info {
   .ant-table-small {
     border: none !important;
+
+    td {
+      font-size: 12px;
+      font-weight: 400;
+      color: black;
+      vertical-align: text-top;
+    }
   }
 }
 

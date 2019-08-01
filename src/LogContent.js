@@ -197,31 +197,24 @@ class LogContent extends React.Component {
                     <Table
                         dataSource={this.log.list} loading={this.log.loading}
                         pagination={false}
-                        onRow={record => {
-                            return {
-                                onClick: event => {
-                                    this.openRowInfoDrawer(true, record)
-                                }
-                            };
-                        }}
-
                         onChange={this.handleOnChange}>
-                        <Column width={180} title="时间" dataIndex="__time__"
+                        <Column dataIndex="key" key={"key"}/>
+                        <Column onClick={(record) => {
+                            this.openRowInfoDrawer(true, record)
+                        }} width={180} title="时间" dataIndex="__time__"
                                 defaultSortOrder={'descend'}
-                                key={"key"}
                                 sorter={true}
                                 render={(text, record) => (
-                                    <span>{moment(parseInt(record.__time__) * 1000).format("YYYY-MM-DD hh:mm:ss")}</span>
+                                    <div>
+                                        <span>{moment(parseInt(record.__time__) * 1000).format("YYYY-MM-DD HH:mm:ss")}</span>
+                                    </div>
                                 )}/>
                         <Column title="级别" dataIndex="level"/>}
                         <Column title="内容" dataIndex="message"
-                                render={(text, record) => <div
-                                    style={{
-                                        wordWrap: 'break-word',
-                                        wordBreak: 'break-all',
-                                        whiteSpace: 'pre-wrap'
-                                    }}>{text}</div>}
+                                render={(text, record) => <div className={"message"}>{text}</div>}
                         />
+                        <Column render={(record) => <Icon onClick={() => this.openRowInfoDrawer(true, record)}
+                                                          style={{cursor: 'pointer'}} type="profile"/>}/>}
                     </Table>
                 </div>
                 <Drawer
